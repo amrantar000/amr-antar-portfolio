@@ -3710,5 +3710,456 @@
       switchAIAgent(0, document.querySelector('.ai-agent-tab'));
     });
   </script>
+<style id="VisitorModeFixStyles">
+  /* 1. إخفاء شارة Visitor View نهائياً */
+  #visitorViewBadge,
+  .visitor-badge,
+  .visitor-view-pill,
+  [data-visitor-badge] {
+    display: none !important;
+  }
 
+  /* 2. ضبط نافذة عرض اللوحات والزووم السلس */
+  #lightbox.open {
+    display: flex !important;
+    z-index: 99999 !important;
+  }
+  #lightbox .lb-stage {
+    position: relative !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: grab !important;
+    user-select: none !important;
+    touch-action: none !important;
+  }
+  #lightbox .lb-stage.dragging {
+    cursor: grabbing !important;
+  }
+  #lightbox #lbImg {
+    display: block !important;
+    max-width: 92vw !important;
+    max-height: 82vh !important;
+    width: auto !important;
+    height: auto !important;
+    flex-shrink: 0 !important;
+    transform-origin: center center !important;
+    transition: none !important;
+    user-select: none !important;
+    -webkit-user-drag: none !important;
+    pointer-events: none !important;
+  }
+
+  /* 3. ضبط نافذة الـ 4 AI Agents */
+  .ai-drawer.open {
+    display: flex !important;
+    z-index: 99990 !important;
+  }
+  .ai-input-row input,
+  .ai-agent-tab,
+  .ai-qchip {
+    pointer-events: auto !important;
+    user-select: auto !important;
+  }
+</style>
+
+<script id="VisitorModeMasterFix">
+(function() {
+  /* ==========================================================================
+     1. إزالة كلمة Visitor View من الهيدر
+     ========================================================================== */
+  function removeVisitorViewText() {
+    document.querySelectorAll('header *, .nav-right *, body > div, body > span').forEach(el => {
+      const txt = (el.textContent || '').trim();
+      if (/^(👁️\s*|🔒\s*)?visitor\s*(view|mode)$/i.test(txt)) {
+        el.style.setProperty('display', 'none', 'important');
+        el.remove();
+      }
+    });
+  }
+
+  /* ==========================================================================
+     2. تشغيل الـ 4 AI Agents باللغة الإنجليزية بالكامل
+     ========================================================================== */
+  let currentAgentIdx = 0;
+  const agentsInfo = [
+    {
+      name: "AmrTwin AI",
+      greeting: "Hello! I am AmrTwin AI, Eng. Amr Antar's digital engineering assistant. Ask me about his experience at REDCON & IBIMS, or his 10+ mega projects across KSA and Egypt.",
+      chips: ["Key Mega Projects?", "Current Role at REDCON?", "Contact Info?"]
+    },
+    {
+      name: "BIM Coordinator AI",
+      greeting: "Welcome! I specialize in Amr's MEP BIM coordination workflows—covering HVAC, Fire Fighting, and Plumbing modeling (LOD 300–500), Navisworks clash detection, and A0 shop drawings.",
+      chips: ["Clash Detection Workflow?", "MEP Systems Covered?", "Shop Drawings & BWIC?"]
+    },
+    {
+      name: "Scan-to-BIM & pyRevit AI",
+      greeting: "Hi there! Ask me about Amr's Scan-to-BIM point cloud verification using Autodesk ReCap, or his custom Python/pyRevit automation add-ins for Revit MEP.",
+      chips: ["Scan-to-BIM Projects?", "Custom pyRevit Tools?", "Software Arsenal?"]
+    },
+    {
+      name: "HR & Recruiter Guide AI",
+      greeting: "Hello Recruiters & Hiring Managers! I can provide a quick summary of Eng. Amr Antar's B.Sc. qualifications, KAITECH BIM Diploma, availability, and direct contact details.",
+      chips: ["Education & Diplomas?", "Availability & Relocation?", "Direct Contact?"]
+    }
+  ];
+
+  function getSmartReply(q) {
+    const text = (q || "").toLowerCase();
+    if (text.includes("project") || text.includes("mega") || text.includes("ksa") || text.includes("saudi") || text.includes("haram") || text.includes("mews")) {
+      return "Eng. Amr Antar has delivered 10+ mega projects across Saudi Arabia and Egypt, including: Al Haram Al Makky (3rd Expansion), The Mews Mall (Riyadh), Qiddiya West Gas Farm, Mina Emergency Hospital, Red Sea International Airport (MRO Hangar), Misk City LPG Station, Jarir HQ, and Golden Gate Mall (New Cairo).";
+    }
+    if (text.includes("redcon") || text.includes("ibims") || text.includes("experience") || text.includes("role") || text.includes("work")) {
+      return "Amr currently serves as a Mechanical BIM Engineer at REDCON Construction (working on Masyaf Ras Al Hekma & Golden Gate Mall). Previously, he worked as a BIM Engineer at IBIMS and as a Mechanical BIM Lead on major KSA projects.";
+    }
+    if (text.includes("clash") || text.includes("navis") || text.includes("coord") || text.includes("lod") || text.includes("shop") || text.includes("bwic") || text.includes("mep") || text.includes("hvac")) {
+      return "He specializes in end-to-end Revit MEP modeling (LOD 300 to LOD 500) across HVAC, Fire Fighting (water/foam), Plumbing, and Industrial LPG piping, performing full multi-trade clash resolution in Navisworks Manage and extracting construction-ready Shop Drawings and Builder's Work (BWIC) packages.";
+    }
+    if (text.includes("scan") || text.includes("recap") || text.includes("point cloud") || text.includes("pyrevit") || text.includes("automat") || text.includes("python") || text.includes("software")) {
+      return "Amr executes Scan-to-BIM point cloud verification in Autodesk ReCap & Revit (such as Golden Gate Mall) to validate site installations against design intent. He also develops custom pyRevit/Python tools to automate repetitive modeling and tagging tasks.";
+    }
+    if (text.includes("educat") || text.includes("degree") || text.includes("diploma") || text.includes("certif") || text.includes("aast") || text.includes("kaitech")) {
+      return "Amr holds a B.Sc. in Mechanical Power Engineering from the Arab Academy for Science & Technology (AAST, 2023 — Graduation Project rated Excellent) and completed the specialized KAITECH MEP BIM Diploma.";
+    }
+    if (text.includes("contact") || text.includes("hire") || text.includes("email") || text.includes("phone") || text.includes("availab") || text.includes("locat")) {
+      return "Eng. Amr Antar is available for Mechanical BIM Engineer opportunities in Saudi Arabia, Egypt, or remote. You can reach him directly via email at amr.antar.connect@gmail.com or by phone at +20 1515075321.";
+    }
+    return "Eng. Amr Antar is a Mechanical BIM Engineer specializing in Revit MEP (LOD 300–500), Navisworks Clash Coordination, Scan-to-BIM (Autodesk ReCap), Shop Drawings, and pyRevit Automation. Feel free to ask about his projects, software stack, or contact details!";
+  }
+
+  window.toggleAIDrawer = function() {
+    const drawer = document.querySelector('.ai-drawer');
+    if (!drawer) return;
+    drawer.classList.toggle('open');
+    if (drawer.classList.contains('open')) {
+      const inp = drawer.querySelector('.ai-input-row input');
+      if (inp) {
+        inp.disabled = false;
+        inp.readOnly = false;
+        inp.removeAttribute('contenteditable');
+        setTimeout(() => inp.focus(), 60);
+      }
+    }
+  };
+
+  window.switchAIAgent = window.selectAIAgent = function(idx) {
+    currentAgentIdx = typeof idx === 'number' ? idx : 0;
+    const tabs = document.querySelectorAll('.ai-agent-tab');
+    tabs.forEach((t, i) => t.classList.toggle('active', i === currentAgentIdx));
+
+    const msgBox = document.querySelector('.ai-messages');
+    const info = agentsInfo[currentAgentIdx] || agentsInfo[0];
+    if (msgBox) {
+      msgBox.innerHTML = `<div class="ai-msg bot"><strong>${info.name}:</strong><br>${info.greeting}</div>`;
+    }
+    const chipsBox = document.querySelector('.ai-quick-chips');
+    if (chipsBox && info.chips) {
+      chipsBox.innerHTML = info.chips.map(c => `<button type="button" class="ai-qchip">${c}</button>`).join('');
+      document.querySelectorAll('.ai-qchip').forEach(chip => {
+        chip.onclick = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.sendAIMessage(this.textContent.trim());
+        };
+      });
+    }
+  };
+
+  window.sendAIMessage = function(customText) {
+    const drawer = document.querySelector('.ai-drawer');
+    if (!drawer) return;
+    const inp = drawer.querySelector('.ai-input-row input');
+    const msgBox = drawer.querySelector('.ai-messages');
+    const text = (typeof customText === 'string' ? customText : (inp ? inp.value : '')).trim();
+    if (!text || !msgBox) return;
+
+    const userDiv = document.createElement('div');
+    userDiv.className = 'ai-msg user';
+    userDiv.textContent = text;
+    msgBox.appendChild(userDiv);
+    if (inp && typeof customText !== 'string') inp.value = '';
+    msgBox.scrollTop = msgBox.scrollHeight;
+
+    setTimeout(() => {
+      const botDiv = document.createElement('div');
+      botDiv.className = 'ai-msg bot';
+      const agentName = (agentsInfo[currentAgentIdx] || agentsInfo[0]).name;
+      botDiv.innerHTML = `<strong>${agentName}:</strong><br>${getSmartReply(text)}`;
+      msgBox.appendChild(botDiv);
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }, 180);
+  };
+
+  function initAIAgentsClean() {
+    document.querySelectorAll('.ai-agent-tab').forEach((tab, idx) => {
+      tab.removeAttribute('onclick');
+      tab.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.switchAIAgent(idx);
+      };
+    });
+    window.switchAIAgent(0);
+
+    const inp = document.querySelector('.ai-input-row input');
+    const sendBtn = document.querySelector('.ai-input-row button');
+    if (inp) {
+      inp.disabled = false;
+      inp.readOnly = false;
+      inp.placeholder = "Ask about projects, Revit MEP, Scan-to-BIM...";
+      inp.onkeydown = function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+          window.sendAIMessage();
+        }
+      };
+    }
+    if (sendBtn) {
+      sendBtn.removeAttribute('onclick');
+      sendBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.sendAIMessage();
+      };
+    }
+  }
+
+  /* ==========================================================================
+     3. محرك زووم وتحريك جديد كلياً للوحات (بدون أي تعارض مع الكود القديم)
+     ========================================================================== */
+  let zoom = 1;
+  let panX = 0;
+  let panY = 0;
+  let dragging = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  function renderTransform() {
+    const img = document.getElementById('lbImg');
+    if (!img) return;
+    img.style.setProperty('transform', `translate(${Math.round(panX)}px, ${Math.round(panY)}px) scale(${zoom.toFixed(3)})`, 'important');
+
+    const lb = document.getElementById('lightbox');
+    if (lb) {
+      lb.querySelectorAll('.lb-header span, .lb-header .mono').forEach(el => {
+        if (/^\d+%$/.test(el.textContent.trim()) || el.id === 'lbZoomLabel' || el.id === 'lbZoomPct') {
+          el.textContent = Math.round(zoom * 100) + '%';
+        }
+      });
+    }
+  }
+
+  function zoomToPoint(newZoom, clientX, clientY) {
+    const stage = document.querySelector('#lightbox .lb-stage');
+    if (!stage) return;
+
+    const clamped = Math.min(Math.max(newZoom, 0.5), 6.0);
+    if (Math.abs(clamped - 1) < 0.04 && newZoom === 1) {
+      zoom = 1;
+      panX = 0;
+      panY = 0;
+      renderTransform();
+      return;
+    }
+
+    const rect = stage.getBoundingClientRect();
+    const cx = clientX !== undefined ? (clientX - (rect.left + rect.width / 2)) : 0;
+    const cy = clientY !== undefined ? (clientY - (rect.top + rect.height / 2)) : 0;
+
+    const ratio = clamped / zoom;
+    panX = cx - (cx - panX) * ratio;
+    panY = cy - (cy - panY) * ratio;
+    zoom = clamped;
+
+    renderTransform();
+  }
+
+  window.zoomLightbox = window.stepLbZoom = window.changeLbZoom = window.lbZoom = function(delta) {
+    if (delta === 0) {
+      zoom = 1;
+      panX = 0;
+      panY = 0;
+      renderTransform();
+    } else {
+      zoomToPoint(zoom + delta);
+    }
+  };
+
+  window.resetLightboxZoom = window.fitLightbox = window.lbResetZoom = function() {
+    zoom = 1;
+    panX = 0;
+    panY = 0;
+    renderTransform();
+  };
+
+  window.closeLightbox = function() {
+    const lb = document.getElementById('lightbox');
+    if (!lb) return;
+    lb.classList.remove('open');
+    lb.style.setProperty('display', 'none', 'important');
+    document.body.style.overflow = '';
+  };
+
+  window.openLightbox = function(arg1, arg2, arg3) {
+    const lb = document.getElementById('lightbox');
+    const img = document.getElementById('lbImg');
+    const pdfFrame = document.getElementById('lbPdfFrame');
+    if (!lb || !img) return;
+
+    let src = '';
+    let title = 'Engineering Drawing Sheet';
+    let code = '';
+
+    if (typeof arg1 === 'string' && arg1.length > 5) {
+      src = arg1;
+      title = arg2 || title;
+      code = arg3 || '';
+    } else if (typeof worksPortfolioData !== 'undefined') {
+      let pIdx = typeof arg2 === 'number' ? arg1 : 0;
+      let sIdx = typeof arg2 === 'number' ? arg2 : (typeof arg1 === 'number' ? arg1 : 0);
+      const proj = worksPortfolioData[pIdx] || worksPortfolioData[0];
+      const sheet = proj && proj.sheets ? proj.sheets[sIdx] : null;
+      if (sheet) {
+        src = sheet.customImg || sheet.thumbImg || '';
+        title = sheet.title || title;
+        code = sheet.dwgNo || '';
+      }
+    }
+
+    if (!src) return;
+
+    if (pdfFrame) pdfFrame.style.setProperty('display', 'none', 'important');
+    img.style.setProperty('display', 'block', 'important');
+
+    const titleEl = document.getElementById('lbTitle') || lb.querySelector('.lb-header strong, .lb-header h4');
+    const codeEl = document.getElementById('lbCode') || lb.querySelector('.lb-header .mono');
+    if (titleEl) titleEl.textContent = title;
+    if (codeEl && code) codeEl.textContent = code;
+
+    zoom = 1;
+    panX = 0;
+    panY = 0;
+    img.src = src;
+    renderTransform();
+
+    lb.style.removeProperty('display');
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  function setupCleanLightbox() {
+    const oldLb = document.getElementById('lightbox');
+    if (!oldLb || oldLb.dataset.cleanCloned === 'true') return;
+
+    // استبدال عنصر Lightbox بنسخة نظيفة لمسح جميع الأحداث القديمة المتعارضة
+    const lb = oldLb.cloneNode(true);
+    lb.dataset.cleanCloned = 'true';
+    oldLb.parentNode.replaceChild(lb, oldLb);
+
+    // ربط أزرار الشريط العلوي (+, -, Fit, Close)
+    lb.querySelectorAll('.lb-header button').forEach(btn => {
+      btn.removeAttribute('onclick');
+      const txt = btn.textContent.trim().toLowerCase();
+      if (txt.includes('+') || txt.includes('＋') || txt.includes('in')) {
+        btn.onclick = function(e) { e.preventDefault(); e.stopPropagation(); zoomToPoint(zoom + 0.35); };
+      } else if (txt.includes('-') || txt.includes('－') || txt.includes('−') || txt.includes('out')) {
+        btn.onclick = function(e) { e.preventDefault(); e.stopPropagation(); zoomToPoint(zoom - 0.35); };
+      } else if (txt.includes('fit') || txt.includes('reset') || txt.includes('100%')) {
+        btn.onclick = function(e) { e.preventDefault(); e.stopPropagation(); window.resetLightboxZoom(); };
+      } else if (txt.includes('✕') || txt.includes('×') || txt.includes('close')) {
+        btn.onclick = function(e) { e.preventDefault(); e.stopPropagation(); window.closeLightbox(); };
+      }
+    });
+
+    const stage = lb.querySelector('.lb-stage');
+    if (!stage) return;
+
+    // الزووم ببكرة الماوس نحو موقع المؤشر بالضبط
+    stage.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const delta = e.deltaY < 0 ? 0.28 : -0.28;
+      zoomToPoint(zoom + delta, e.clientX, e.clientY);
+    }, { passive: false, capture: true });
+
+    // دبل كليك للتكبير السريع أو الإرجاع للوضع الطبيعي
+    stage.addEventListener('dblclick', function(e) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if (zoom > 1.15) {
+        window.resetLightboxZoom();
+      } else {
+        zoomToPoint(2.5, e.clientX, e.clientY);
+      }
+    });
+
+    // السحب بالماوس في جميع الاتجاهات
+    stage.addEventListener('mousedown', function(e) {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      dragging = true;
+      stage.classList.add('dragging');
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', function(e) {
+      if (!dragging) return;
+      if (e.buttons !== 1) {
+        dragging = false;
+        stage.classList.remove('dragging');
+        return;
+      }
+      panX += (e.clientX - lastX);
+      panY += (e.clientY - lastY);
+      lastX = e.clientX;
+      lastY = e.clientY;
+      renderTransform();
+    });
+
+    window.addEventListener('mouseup', function() {
+      if (dragging) {
+        dragging = false;
+        stage.classList.remove('dragging');
+      }
+    });
+  }
+
+  // تفويض النقرات على الكروت لضمان فتح اللوحات دائماً حتى بعد تغيير الفلتر
+  document.addEventListener('click', function(e) {
+    const thumbImg = e.target.closest('#worksSheetsGrid .sheet-thumb img');
+    const viewBtn = e.target.closest('#worksSheetsGrid .sheet-thumb-actions button:not(.admin-only)');
+    if (thumbImg || viewBtn) {
+      const card = (thumbImg || viewBtn).closest('.sheet-card');
+      const img = card ? card.querySelector('.sheet-thumb img') : thumbImg;
+      if (img && img.src) {
+        e.preventDefault();
+        e.stopPropagation();
+        const title = (card?.querySelector('.sheet-name')?.textContent || 'Engineering Sheet').trim();
+        const code = (card?.querySelector('.sheet-dwg-no')?.textContent || '').trim();
+        window.openLightbox(img.src, title, code);
+      }
+    }
+  }, true);
+
+  function bootFixes() {
+    const preloader = document.getElementById('bimPreloader');
+    if (preloader) preloader.classList.add('loaded');
+    removeVisitorViewText();
+    initAIAgentsClean();
+    setupCleanLightbox();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(bootFixes, 50));
+  } else {
+    setTimeout(bootFixes, 50);
+  }
+  window.addEventListener('load', () => setTimeout(bootFixes, 100));
+})();
+</script>
 </body></html>
